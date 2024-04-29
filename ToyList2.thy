@@ -30,7 +30,6 @@ lemma reverse_reverse [simp]: "reverse (reverse xs) = xs"
 theorem reverse_pred:
   fixes f :: "'a List \<Rightarrow> 'a List"
   assumes
-    "f N = N" and
     "\<And>x. f (C x N) = C x N" and
     "\<And>xs ys. f (append xs ys) = append (f ys) (f xs)"
   shows "f = reverse"
@@ -38,13 +37,14 @@ proof -
   { fix xs :: "'a List"
     from assms have "f xs = reverse xs"
     proof (induction xs)
-      case N thus ?case by simp
+      case N hence "f N = N" by (metis List.inject append.simps)
+      thus ?case by simp
       case (C x ys) thus ?case
       proof auto
-        from C.prems(2) have "f (C x N) = C x N" by simp
+        from C.prems(1) have "f (C x N) = C x N" by simp
         moreover
         have "C x ys = append (C x N) ys" by auto
-        with C.prems(3) have "f (C x ys) = append (f ys) (f (C x N))" by metis
+        with C.prems(2) have "f (C x ys) = append (f ys) (f (C x N))" by metis
         moreover
         assume "f ys = reverse ys"
         ultimately
